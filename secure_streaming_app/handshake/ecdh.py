@@ -9,13 +9,13 @@ class ECDHKeyPair:
 
     def public_bytes(self):
         # TO-DO:return public keys in bytes
-        self.public_key.public_bytes(
+        return self.public_key.public_bytes(
             encoding=serialization.Encoding.Raw,
             format=serialization.PublicFormat.Raw
             )
 
-    def compute_shared_secret(self, peer_public_bytes)
+    def compute_shared_secret(self, peer_public_bytes):
         #To-do: compute shared secret
         peer_public_key = x25519.X25519PublicKey.from_public_bytes(peer_public_bytes)
-        shared_secret = self.private_key.exchange(peer_public_bytes)
+        shared_secret = self.private_key.exchange(peer_public_key)
         return shared_secret
