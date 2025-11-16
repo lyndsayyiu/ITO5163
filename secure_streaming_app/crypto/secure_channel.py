@@ -70,7 +70,7 @@ def _recv_with_length_prefix(sock) -> bytes:
         struct.error: If the length prefix is invalid. 
     """
     # Read the 4-byte length and determine message length. 
-    length_prefix = _recv_exact(sock, 4)
+    length_prefix = _recv_exact_len(sock, 4)
     (msg_length,) = struct.unpack("!I", length_prefix)
 
     #Read the full message
