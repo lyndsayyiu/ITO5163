@@ -25,7 +25,7 @@ def main():
     #For local testing, 127.0.0.1
     #For testing with VM, 192.168.1.3 if server is run on my local machine. 
     SERVER_IP = "127.0.0.1"
-    SERVER_PORT = 5000
+    SERVER_PORT = 5050
     print(f"[CLIENT] connecting to server at {SERVER_IP}: {SERVER_PORT}")
     start_client(SERVER_IP, SERVER_PORT, identity)
 

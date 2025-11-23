@@ -54,7 +54,7 @@ def build_server_hello(device_id: str, ecdh_public_key_bytes: bytes, signature_b
         "type": "server_hello",
         "device_id": device_id,
         "ecdh_public_key": b64_encode(ecdh_public_key_bytes),
-        "signature_bytes": b64_encode(signature_bytes)
+        "signature": b64_encode(signature_bytes)
     }
     return json.dumps(message)
 
@@ -70,7 +70,7 @@ def parse_server_hello(json_str: str):
     
     device_id = data["device_id"]
     ecdh_public_key_bytes = b64_decode(data["ecdh_public_key"])
-    signature = b64_decode(data["signature"]) 
+    signature_bytes = b64_decode(data["signature"]) 
 
     return device_id, ecdh_public_key_bytes, signature_bytes
 

@@ -24,7 +24,7 @@ def main():
 
     # Bind to all interfaces
     SERVER_IP = "0.0.0.0"
-    SERVER_PORT = 5000
+    SERVER_PORT = 5050
 
     print(f"[SERVER] Starting on {SERVER_IP}: {SERVER_PORT}")
     start_server(SERVER_IP, SERVER_PORT, identity)

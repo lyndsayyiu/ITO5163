@@ -23,8 +23,8 @@ def start_server(host: str, port: int, identity: Identity):
     """
     Starts the secure streaming server.
 
-    This function opens a TCP sockets, accepts one clients connection and performs the handshake. Then enters a loop
-    receiving the encrypted message. 
+    Creates a TCP socket, accepts one client connection, performs the authenticated ECDH handshake,
+    then enters a loop receiving encrypted messages via AES-GCM through the secure_receive() function. 
 
     Arguments:
         host (str): IP address or hostname to bind to.
@@ -49,9 +49,8 @@ def start_server(host: str, port: int, identity: Identity):
     #Receive encrypted messages
     while True:
         try:
-            plaintext_bytes = secure_receive(conn, session_key)
-            message = json.loads(plaintext_bytes.decode("utf-8"))
-            print(f"[SERVER] Received: {message}")
+            seq, message_dict = secure_receive(conn, session_key)
+            print(f"[SERVER] Received (seq={seq}): {message_dict}")
 
         except Exception as e:
             print(f"[SERVER] Connection closed or error: {e}")
