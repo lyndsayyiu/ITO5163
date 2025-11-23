@@ -139,7 +139,7 @@ def server_handshake(conn, identity: Identity) -> bytes:
     conn.sendall(server_hello_json)
     print(f"[SERVER] Sent server_hello to client.")
 
-    #Handshake complete: return the dervised session key
+    #Handshake complete: return the derived session key
     return session_key
 
 
