@@ -45,7 +45,7 @@ def start_client(host: str, port: int, identity: Identity):
     print(f"[CLIENT] Handshake complete. Session key established.")
 
     #Instantiate a data source to create sequential messages
-    data_source = DataSource(start_seq=1)
+    data_source = DataSource(1)
     print(f"[CLIENT] Starting encrypted message stream...")
     #Initiate counter for channel sequence
     secure_seq = 1
