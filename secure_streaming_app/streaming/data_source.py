@@ -1,52 +1,54 @@
 """
 data_source.py
 
+Provide a plaintext data generator. This module is to simulate a real-world data source (e.g. an IoT sensor)
+It produces application-level messages that contain only application data. 
+
 Provides a simple streaming-style data generator that produces structured plaintext messages before encryption. 
 Each message is a dictionary as below:
-    {"seq": <int>, "message": <str>}
+    {"message": <str>}
 
 This module is to simulate a real-word data source like an API without depending on an actual external API.
 Rather than using an external API, a simple message has been done for ease of checking that it has encrypted and decrypted properly. 
 """
 
-import time
-from typing import Dict, Optional
+from typing import Dict
 
 class DataSource:
     """
     A data generator that produces sequential messages. 
 
+    For demonstrative purposes, placeholder messages to show encryption and decryption clearly during demo. 
+
     Attributes:
-        seq (int): The current sequence number. Increments with each message generated.
+        counter (int): Internal counter for generating placeholder messages.
     """
 
-    def __init__(self, start_seq: int = 1):
+    def __init__(self, start_value: int = 1):
         """
-        Initialises the data source.
+        Initialises the data generator. 
 
         Arguments:
-            start_seq (int): The initial sequence number for the data stream. Defaults to 1. 
+            start_value (int): The initial value number for the data stream. Defaults to 1. 
         """
-        self.seq = start_seq
+        self.counter = start_value
 
     def next_message(self) -> Dict[str, object]:
         """
-        Generates the next sequential message. 
+        Produces the next message.
 
         Returns:
             dict: A plaintext message with the structure:
 
             {
-                "seq": <int>,
                 "message": <str>
             }
 
             The "message" field contains a simple placeholder string identifying this event in the sequence. 
         """
         message = {
-            "seq": self.seq,
-            "message": f"{self.seq}"
+            "message": f"Event {self.counter}"
         }
 
-        self.seq += 1
+        self.counter += 1
         return message
