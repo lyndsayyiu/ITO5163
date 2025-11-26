@@ -23,7 +23,7 @@ def start_server(host: str, port: int, identity: Identity):
     """
     Starts the secure streaming server.
 
-    Creates a TCP socket, accepts one client connection, performs the authenticated ECDH handshake,
+    Creates a TCP socket, accepts a client connection, performs the authenticated ECDH handshake,
     then enters a loop receiving encrypted messages via AES-GCM through the secure_receive() function. 
 
     Arguments:
@@ -36,34 +36,39 @@ def start_server(host: str, port: int, identity: Identity):
     #Create TCP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((host, port))
-    sock.listen(1)
-    print(f"[SERVER] Waiting for client connection...")
+    sock.listen(5)
 
-    conn, addr = sock.accept()
-    print(f"[SERVER] Client connected from {addr}")
-
-    #Perform handshake
-    session_key = server_handshake(conn, identity)
-    print(f"[SERVER] Handshake complete. Session key established.")
-
-    last_seq = 0 #Instatiating to help prevent replay attacks
-    
-    #Receive encrypted messages
     while True:
+        print(f"[SERVER] Waiting for client connection...")
+        conn, addr = sock.accept()
+        print(f"[SERVER] Client connected from {addr}")
+
         try:
-            seq, message_dict = secure_receive(conn, session_key)
+            #Perform handshake
+            session_key = server_handshake(conn, identity)
+            print(f"[SERVER] Handshake complete. Session key established.")
 
-            #Checking for a replayed message
-            if seq <= last_seq:
-                print(f"[WARNING] Replay message detected! Received seq={seq}, but last_seq={last_seq}. Message rejected.")
-                continue
-            last_seq = seq
+            last_seq = 0 #Instatiating to help prevent replay attacks
+        
+            #Receive encrypted messages
+            while True:
+                try:
+                    seq, message_dict = secure_receive(conn, session_key)
 
-            print(f"[SERVER] Received (seq={seq}): {message_dict}")
+                    #Checking for a replayed message
+                    if seq <= last_seq:
+                        print(f"[WARNING] Replay message detected! Received seq={seq}, but last_seq={last_seq}. Message rejected.")
+                        continue
+                    last_seq = seq
 
-        except Exception as e:
-            print(f"[SERVER] Connection closed or error: {e}")
-            break
+                    print(f"[SERVER] Received (seq={seq}): {message_dict}")
+
+                except Exception as e:
+                    print(f"[SERVER] Connection closed or error: {e}")
+                    break
+        finally:
+            conn.close()
+            print("[SERVER] Connection closed. Waiting for next client.")
 
 #Handshake logic
 def server_handshake(conn, identity: Identity) -> bytes:
