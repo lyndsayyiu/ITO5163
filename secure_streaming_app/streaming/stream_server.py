@@ -10,7 +10,6 @@ Handles the incoming side of the secure streaming channel:
 """
 import socket
 import json
-
 from handshake.ecdh import ECDHKeyPair
 from handshake.identity import Identity
 from handshake.rsa_auth import verify_ecdh_public_key_signature, sign_ecdh_public_key
@@ -35,6 +34,7 @@ def start_server(host: str, port: int, identity: Identity):
 
     #Create TCP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     sock.bind((host, port))
     sock.listen(5)
 
@@ -42,33 +42,39 @@ def start_server(host: str, port: int, identity: Identity):
         print(f"[SERVER] Waiting for client connection...")
         conn, addr = sock.accept()
         print(f"[SERVER] Client connected from {addr}")
-
         try:
             #Perform handshake
             session_key = server_handshake(conn, identity)
+            if session_key is None:
+                print("[SERVER] Handshake failed. Rejecting client.")
+                conn.close()
+                continue
             print(f"[SERVER] Handshake complete. Session key established.")
 
             last_seq = 0 #Instatiating to help prevent replay attacks
         
             #Receive encrypted messages
-            while True:
+            while True: 
                 try:
                     seq, message_dict = secure_receive(conn, session_key)
-
                     #Checking for a replayed message
                     if seq <= last_seq:
                         print(f"[WARNING] Replay message detected! Received seq={seq}, but last_seq={last_seq}. Message rejected.")
                         continue
                     last_seq = seq
-
                     print(f"[SERVER] Received (seq={seq}): {message_dict}")
-
                 except Exception as e:
                     print(f"[SERVER] Connection closed or error: {e}")
                     break
+        except ValueError as e:
+            print(f"[SERVER] Handshake validation error: {e}")
+        except ConnectionError as e:
+            print(f"[SERVER] Connection error during handshake: {e}")
+        except Exception as e:
+            print(f"[SERVER] Unexpected handshake error: {e}")
         finally:
             conn.close()
-            print("[SERVER] Connection closed. Waiting for next client.")
+            print("[SERVER] Connection closed. Waiting for next client. ")
 
 #Handshake logic
 def server_handshake(conn, identity: Identity) -> bytes:
@@ -95,7 +101,10 @@ def server_handshake(conn, identity: Identity) -> bytes:
         client_hello_json = raw_data.decode("utf-8")
         client_hello = json.loads(client_hello_json)
     except Exception as e:
-        raise ValueError(f"[SERVER] Invalid client_hello format: {e}")
+        print(f"[WARNING] Malformed or non-UTF8 client_hello received. Possible attack. Error: {e}")
+        conn.close()
+        return None
+
     
     print(f"[SERVER] Received client_hello: {client_hello}")
 
@@ -115,6 +124,7 @@ def server_handshake(conn, identity: Identity) -> bytes:
         client_rsa_public_key = identity.get_peer_public_key(client_device_id)
     except Exception as e: 
         raise ValueError(f"[SERVER] Unknown or untrusted client '{client_device_id}': {e}")
+        
     
     #Verifying the RSA signature on the client's ECDH public key. 
     is_valid = verify_ecdh_public_key_signature(

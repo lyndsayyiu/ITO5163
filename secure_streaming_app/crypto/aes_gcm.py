@@ -2,7 +2,7 @@ import os
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 NONCE_SIZE = 12 #NIST recommendation of 96-bits
-TAG_SIZE = 16 #128-bit authentification tag
+TAG_SIZE = 16 #128-bit authentication tag
 KEY_SIZE = 32 #256-bit AES Key 
 
 def encrypt_message(session_key: bytes, plaintext_bytes: bytes):
