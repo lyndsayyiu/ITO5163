@@ -45,11 +45,20 @@ def start_server(host: str, port: int, identity: Identity):
     #Perform handshake
     session_key = server_handshake(conn, identity)
     print(f"[SERVER] Handshake complete. Session key established.")
+
+    last_seq = 0 #Instatiating to help prevent replay attacks
     
     #Receive encrypted messages
     while True:
         try:
             seq, message_dict = secure_receive(conn, session_key)
+
+            #Checking for a replayed message
+            if seq <= last_seq:
+                print(f"[WARNING] Replay message detected! Received seq={seq}, but last_seq={last_seq}. Message rejected.")
+                continue
+            last_seq = seq
+
             print(f"[SERVER] Received (seq={seq}): {message_dict}")
 
         except Exception as e:
@@ -67,7 +76,7 @@ def server_handshake(conn, identity: Identity) -> bytes:
 
     Arguments:
         conn (socket.socket): The TCP connection of the client
-        identity (Identity): The server's RSA identity. 
+        identity (Identity): The server's RSA identity.         
 
     Returns:
         bytes: The final symmetric session key. 

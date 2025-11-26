@@ -10,7 +10,7 @@ def encrypt_message(session_key: bytes, plaintext_bytes: bytes):
     Encrypt a plain-text message using AES-GCM.
 
     Arguments:
-        session_key: 258-bit AES Key (Derived from HKDF)
+        session_key: 256-bit AES Key (Derived from HKDF)
         plaintext_bytes: The plaintext to encrpyt.
 
     Returns:
