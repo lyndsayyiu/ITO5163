@@ -39,10 +39,7 @@ def attempt_fake_signature_attack():
             "ecdh_public_key": base64.b64encode(fake_ecdh_key).decode("utf-8"),
             "signature": base64.b64encode(fake_signature).decode("utf-8")
         }
-
-        print()
         print("[ATTACKER] Sending malicious client_hello claiming to be 'client'...")
-
         #Send fake handshake
         sock.sendall(json.dumps(fake_message).encode("utf-8"))
 
@@ -54,7 +51,7 @@ def attempt_fake_signature_attack():
             print("[ATTACKER] Connection closed by server (signature rejected)")
     
     except ConnectionRefusedError:
-        print("[ERROR] Connection refused. Is the server running?")
+        print("[ERROR] Connection refused")
     except Exception as e:
         print(f"[ERROR] Unexpected error: {e}")
     finally:

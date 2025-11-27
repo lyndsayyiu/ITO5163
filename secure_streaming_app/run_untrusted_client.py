@@ -1,14 +1,7 @@
 """
-run_unrusted_client.py
+run_untrusted_client.py
 
-Entry point for launching the secure streaming client.
-
-The client:
-    1. Loads it's RSA identity (private + public key)
-    2. Loads trustred RSA public keys from trust_store.json
-    3. Connects to the server using it's LAN/VM IP
-    4. Performs the authenticated ECDH handshake
-    5. Encrypts and send streaming messages
+Testing the security of the identity and trust_store. 
 """
 from handshake.identity import Identity
 from streaming.stream_client import start_client
@@ -16,7 +9,7 @@ from streaming.stream_client import start_client
 def main():
     #Load client identity
     identity = Identity(
-        "fake_client", #Only changing the identity. Attacker has gained access to private/public keys
+        "fake_client", #Only changing the identity. A
         "storage/rsa_keys/client_private.pem",
         "storage/rsa_keys/client_public.pem",
         "storage/trust_store.json"
