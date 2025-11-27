@@ -1,8 +1,14 @@
 import json
 import struct
+import socket
+from typing import Tuple, Dict, Any
 
-from crypto.aes_gcm import encrypt_message, decrypt_message
+from crypto.aes_gcm import encrypt_message, decrypt_message, validate_key_material
 from streaming.protocol import build_encrypted_data_message, parse_encrypted_data_message
+
+SOCKET_TIMEOUT = 30 #seconds - prevents indefinite blocking
+MAX_MESSAGE_SIZE = 10 * 1024 * 1024 #10 MB - prevent memory exhaustion
+MIN_MESSAGE_SIZE = 10 #bytes to prevent trivial messages
 
 #Internal helpers for framing
 def _send_with_length_prefix(sock, data_bytes: bytes):
@@ -16,8 +22,21 @@ def _send_with_length_prefix(sock, data_bytes: bytes):
         sock: A connected TCP socket object. 
         data_bytes (bytes): The raw message bytes to send. 
     """
+    if len(data_bytes) > MAX_MESSAGE_SIZE:
+        raise ValueError(f"Message size {len(data_bytes)} exceeds maximum {MAX_MESSAGE_SIZE}")
+    
+    if len(data_bytes) < MIN_MESSAGE_SIZE:
+        raise ValueError(f"Message size {len(data_bytes)} below minimum {MIN_MESSAGE_SIZE}")
+
     length_prefix = struct.pack("!I", len(data_bytes)) #network byte order
-    sock.sendall(length_prefix + data_bytes)
+
+    try:
+        sock.sendall(length_prefix + data_bytes)
+    except socket.timeout:
+        raise ConnectionError("Send timeout - network may be congested")
+    except OSError as e:
+        raise ConnectionError(f"Socket send failed: {e}")
+
 
 def _recv_exact_len(sock, length: int) -> bytes:
     """
@@ -40,11 +59,18 @@ def _recv_exact_len(sock, length: int) -> bytes:
     if length < 0:
         raise ValueError("length must be non-negative")
     
+    if length > MAX_MESSAGE_SIZE:
+        raise ValueError(f"Requested length {length} exceeds maximum {MAX_MESSAGE_SIZE}")
+    
     chunks = []
     bytes_read = 0
 
     while bytes_read < length:
-        chunk = sock.recv(length - bytes_read)
+        try:
+            chunk = sock.recv(length - bytes_read)
+        except socket.timeout:
+            raise ConnectionError(f"Receive timeout after {bytes_read}/{length} bytes")
+        
         if chunk == b"":
             raise ConnectionError("Socket closed unexpectedly while receiving data.")
         chunks.append(chunk)
@@ -70,9 +96,23 @@ def _recv_with_length_prefix(sock) -> bytes:
         struct.error: If the length prefix is invalid. 
     """
     # Read the 4-byte length and determine message length. 
-    length_prefix = _recv_exact_len(sock, 4)
-    (msg_length,) = struct.unpack("!I", length_prefix)
-
+    try:
+        length_prefix = _recv_exact_len(sock, 4)
+    except ConnectionError as e:
+        raise ConnectionError(f"Failed to read message length prefix: {e}")
+    
+    try:
+        (msg_length,) = struct.unpack("!I", length_prefix)
+    except struct.error as e:
+        raise ValueError(f"Invalid length prefix format: {e}")
+    
+    #Validate message length
+    if msg_length < MIN_MESSAGE_SIZE:
+        raise ValueError(f"Message length {msg_length} below minimum {MIN_MESSAGE_SIZE}")
+    
+    if msg_length > MAX_MESSAGE_SIZE:
+        raise ValueError(f"Message length {msg_length} exceeds maximum {MAX_MESSAGE_SIZE}. Possible attack/corruption.")
+    
     #Read the full message
     return _recv_exact_len(sock, msg_length)
 
@@ -98,14 +138,31 @@ def secure_send(sock, session_key: bytes, seq: int, message_dict: dict):
         OSError: If the underlying socket encounters a send error.
         TypeError: If message_dict is not JSON-serialisable.
     """
-    #Converting the plaintext to JSON
-    plaintext_bytes = json.dumps(message_dict).encode("utf-8")
-
+    #validating Key before use. 
+    if not validate_key_material(session_key):
+        raise ValueError("Invalid session key material")
+    
+    if seq < 1:
+        raise ValueError(f"Sequence number must be positive, got {seq}")
+    
+    #Validate message dict
+    if not isinstance(message_dict, dict):
+        raise TypeError(f"Message must be dict, got {type(message_dict)}")
+    
+    try:
+        #Converting the plaintext to JSON
+        plaintext_bytes = json.dumps(message_dict).encode("utf-8")
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"Message is not JSON-serialisable: {e}")
+    
     #Encrypting with AES-GCM
-    nonce_bytes, ciphertext_bytes, tag_bytes = encrypt_message(
-        session_key,
-        plaintext_bytes
-    )
+    try:
+        nonce_bytes, ciphertext_bytes, tag_bytes = encrypt_message(
+            session_key,
+            plaintext_bytes
+        )
+    except Exception as e:
+        raise ValueError(f"Encryption failed: {e}")
 
     #Wrap into JSON packet
     encrypted_json = build_encrypted_data_message(
@@ -138,7 +195,7 @@ def secure_receive(sock, session_key: bytes):
                 - message_dict: The decrypted message. 
 
     Raises:
-        ConnectionError: If the socket closes before the full message is read. 
+        ConnectionError: If the socket closes or times out before the full message is read. 
         ValueError: If the session_key, nonce, or tag lengths are invalid. 
         cryptography.exceptions.InvalidTag: If the decryption fails due to authentication/tag mismatch.
         json.JSONDecodeError: If the decrypted plaintext is not a valid JSON. 
@@ -146,25 +203,54 @@ def secure_receive(sock, session_key: bytes):
     Notes:
         A failed decrpytion (InvalidTag) would be a strong indicator or tampering, corruption or that the session key is mismatched. 
     """
+    #Validate key before use
+    if not validate_key_material(session_key):
+        raise ValueError("Invalid session key material")
+    
     #Receive the encrpyted JSON bytes
-    json_bytes = _recv_with_length_prefix(sock)
-    json_str = json_bytes.decode("utf-8") #convert to str
-
+    try:
+        json_bytes = _recv_with_length_prefix(sock)
+    except (ConnectionError, ValueError) as e:
+        raise ConnectionError(f"Failed to receive message: {e}")
+    
+    #Decode to string
+    try:
+        json_str = json_bytes.decode("utf-8")
+    except UnicodeDecodeError as e:
+        raise ValueError(f"Message is not valid UTF-8: {e}")
+    
     #Extract encrypted fields
-    seq, nonce_bytes, ciphertext_bytes, tag_bytes = parse_encrypted_data_message(json_str)
+    try:
+        seq, nonce_bytes, ciphertext_bytes, tag_bytes = parse_encrypted_data_message(json_str)
+    except (json.JSONDecodeError, KeyError, ValueError) as e:
+        raise ValueError(f"Invalid encrpyted message format: {e}")
+    
+    #Validate sequence number
+    if seq < 1:
+        raise ValueError(f"Invalid sequence number: {seq}")
 
     #Decrypt using AES-GCM
-    plaintext_bytes = decrypt_message(
-        session_key,
-        nonce_bytes,
-        ciphertext_bytes,
-        tag_bytes
-    )
-
+    try:
+        plaintext_bytes = decrypt_message(
+            session_key,
+            nonce_bytes,
+            ciphertext_bytes,
+            tag_bytes
+        )
+    except Exception as e:
+        raise ValueError(f"Decryption failed at seq={seq}. Possible tampering, key mismatch or network corruption: {e}")
+    
     #Convert to dict
-    message_dict = json.loads(plaintext_bytes.decode("utf-8"))
+    try:
+        message_dict = json.loads(plaintext_bytes.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        raise ValueError(f"Decrypted message is not valid JSON: {e}")
+    
+    if not isinstance(message_dict, dict):
+        raise ValueError(f"Decrpyted message is not a dict: {type(message_dict)}")
 
     return seq, message_dict
+
     
 
 

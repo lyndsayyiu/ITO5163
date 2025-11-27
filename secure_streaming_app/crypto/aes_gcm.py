@@ -64,10 +64,36 @@ def decrypt_message(session_key: bytes, nonce_bytes: bytes, ciphertext_bytes: by
     #Recombining ciphertext and tag
     cipher_tag = ciphertext_bytes + tag_bytes
 
-    plaintext_bytes = aesgcm.decrypt(
-        nonce_bytes,
-        cipher_tag,
-        associated_data=None
-    )
+    try:
+        plaintext_bytes = aesgcm.decrypt(
+            nonce_bytes,
+            cipher_tag,
+            associated_data=None
+        )
+        return plaintext_bytes
+    except Exception as e:
+        raise ValueError(f"Decryption failed - possible tampering or key mismatch: {e}")
+    
+def validate_key_material(session_key: bytes) -> bool:
+    """
+    Validates that the session key meets security requirements. 
 
-    return plaintext_bytes
+    Arguments:
+        session_key (bytes): The session key to validate.
+
+    Returns:
+        bool: True if key appears valid, False otherwise. 
+    """
+    if len(session_key) != KEY_SIZE:
+        return False
+    
+    #Check for all-zero key (indicates derivation failure)
+    if session_key == b'\x00' * KEY_SIZE:
+        return False
+    
+    #Check for sufficient entropy
+    unique_bytes = len(set(session_key))
+    if unique_bytes < 16: #Less than 16 unique bytes would be suspicious.
+        return False
+    
+    return True
