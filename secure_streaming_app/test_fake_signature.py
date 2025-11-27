@@ -47,5 +47,22 @@ def attempt_fake_signature_attack():
         sock.sendall(json.dumps(fake_message).encode("utf-8"))
 
         print("[ATTACKER] Waiting for server response...")
+        response = sock.recv(4096)
+        if response:
+            print(f"[ATTACKER] Unexpected: received data: {response[:100]}")
+        else:
+            print("[ATTACKER] Connection closed by server (signature rejected)")
+    
+    except ConnectionRefusedError:
+        print("[ERROR] Connection refused. Is the server running?")
+    except Exception as e:
+        print(f"[ERROR] Unexpected error: {e}")
+    finally:
+        try:
+            sock.close()
+        except:
+            pass
 
+if __name__ == "__main__":
+    attempt_fake_signature_attack()
         

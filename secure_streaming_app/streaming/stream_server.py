@@ -110,7 +110,7 @@ def server_handshake(conn, identity: Identity) -> bytes:
 
     # --- Parse information from client_hello ---
     try:
-        client_device_id, client_pubkey_bytes, client_signature = parse_client_hello(client_hello)
+        client_device_id, client_pubkey_bytes, client_signature = parse_client_hello(client_hello_json)
     except Exception as e:
         raise ValueError(f"[SERVER] Failed to parse client_hello")
     
@@ -158,9 +158,7 @@ def server_handshake(conn, identity: Identity) -> bytes:
 
     #Build server_hello message
     server_hello = build_server_hello(identity.device_id, server_pubkey_bytes, server_signature)
-
-    server_hello_json = json.dumps(server_hello).encode("utf-8")
-    conn.sendall(server_hello_json)
+    conn.sendall(server_hello.encode("utf-8"))
     print(f"[SERVER] Sent server_hello to client.")
 
     #Handshake complete: return the derived session key

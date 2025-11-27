@@ -96,9 +96,8 @@ def client_handshake(sock, identity: Identity) -> bytes:
 
     # --- Build and send client_hello ---
     client_hello = build_client_hello(identity.device_id, client_pubkey_bytes, signature)
-    client_hello_json = json.dumps(client_hello).encode("utf-8")
     #Send to server
-    sock.sendall(client_hello_json)
+    sock.sendall(client_hello.encode("utf-8"))
     print("[CLIENT] Sent client_hello message")
 
     # --- Receive server_hello ---
@@ -116,7 +115,7 @@ def client_handshake(sock, identity: Identity) -> bytes:
 
     # --- Parse and verify server_hello ---
     try:
-        server_device_id, server_pubkey_bytes, server_signature = parse_server_hello(server_hello)
+        server_device_id, server_pubkey_bytes, server_signature = parse_server_hello(server_hello_json)
     except Exception as e:
         raise ValueError(f"[CLIENT] Failed to parse server_hello: {e}")
     
