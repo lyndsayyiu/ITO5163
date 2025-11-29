@@ -57,7 +57,7 @@ def start_client(host: str, port: int, identity: Identity):
         session_key = client_handshake(sock, identity)
         print(f"[CLIENT] Handshake complete. Session key established.")
 
-    #If handhake fails
+    #If handshake fails
     except ValueError as e:
         #Cryptographic validation failure
         print()

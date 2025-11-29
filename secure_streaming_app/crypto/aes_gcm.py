@@ -75,7 +75,8 @@ def decrypt_message(session_key: bytes, nonce_bytes: bytes, ciphertext_bytes: by
     except InvalidTag:
         raise ValueError("Authentication tag verification failed - message has been tampered with or does not have correct key")
     except Exception as e:
-        raise ValueError(f"Decryption failed - possible tampering or key mismatch: {e}")
+        #Extra defensive programming just in case. Doesn't seem likely. 
+        raise ValueError(f"Unexpected decryption error: {e}")
     
 def validate_key_material(session_key: bytes) -> bool:
     """
@@ -98,5 +99,4 @@ def validate_key_material(session_key: bytes) -> bool:
     unique_bytes = len(set(session_key))
     if unique_bytes < 16: #Less than 16 unique bytes would be suspicious.
         return False
-    
     return True

@@ -221,7 +221,7 @@ def server_handshake(conn, identity: Identity) -> bytes:
 
     if not is_valid:
         #Signature verification failed - possible MITM attack or wrong client.
-        raise ValueError(f"[SERVER] RSA signature verification has FAILED fpr client '{client_device_id}'. Rejecting connection.")
+        raise ValueError(f"[SERVER] RSA signature verification has FAILED for client '{client_device_id}'. Rejecting connection.")
     
     print("[SERVER] Client authentification successful via RSA signature.")
 
