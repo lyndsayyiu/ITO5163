@@ -3,12 +3,14 @@ run_server.py
 
 Entry point for launching the secure streaming server.
 
-The server performs:
-    1. Loading it's RSA identity (private + public key)
-    2. Loading trust RSA public keys from trust_store.json
-    3. Starting the TCP server on 0.0.0.0 for VM compatability
-    4. Performing the authenticated ECDH handshake
-    5. Receiving and decrypting secure streaming messages
+The server:
+    1. Loads it's RSA identity (private + public key)
+    2. Loads trusted RSA public keys from trust_store.json
+    3. Starts the TCP server on 0.0.0.0:5050 and waits for communications
+    4. Waits for a client_hello
+    5. Verifies client_hello and performs key derivation is valid. Otherwise, closes connection.
+    4. Sends back server_hello
+    5. Receives and decrypts messages. Otherwise, closes connection if messages are not valid (corrupted/tampered/etc.)
 """
 from handshake.identity import Identity
 from streaming.stream_server import start_server

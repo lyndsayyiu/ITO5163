@@ -12,8 +12,8 @@ This demonstrates a replay attack where:
 
 Setup:
     Terminal 1: python3 run_server.py (port 5051)
-    Terminal 2: python3 attack_replay_simple.py
-    Terminal 3: python3 run_client.py
+    Terminal 2: python3 attack_replay.py
+    Terminal 3: python3 run_client_impersonation.py
 """
 import socket
 import struct
@@ -115,24 +115,6 @@ def handle_connection(client_sock, client_addr):
             
             time.sleep(2)
             print("\nATTACK RESULT: FAILED")
-            print("\nWhat happened:")
-            print("1. MITM allowed handshake to complete (passive)")
-            print("2. Session key established correctly")
-            print("3. MITM forwarded messages #1, #2, #3 normally")
-            print("4. MITM captured message #2")
-            print("5. MITM replayed message #2 after other messages")
-            print("6. Server checked: seq=2, but last_seq > 2")
-            print("7. Server REJECTED: seq ≤ last_seq (replay detected)")
-            print("\nWhy the replay failed:")
-            print(" - Server maintains sequence counter (last_seq)")
-            print(" - Server code: if seq <= last_seq: reject")
-            print(" - Replayed message has seq=2")
-            print(" - Server's current last_seq > 2")
-            print(" - Condition: 2 <= last_seq = TRUE")
-            print(" - Server rejects with warning message")
-            print("\nSecurity demonstrated:")
-            print(" - Sequence numbers prevent replay attacks.")
-            print(" - Each message is accepted exactly once.")
         time.sleep(2)
         
     except Exception as e:

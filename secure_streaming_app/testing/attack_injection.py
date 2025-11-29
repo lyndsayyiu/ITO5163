@@ -13,8 +13,8 @@ This demonstrates a message injection attack where:
 
 Setup:
     Terminal 1: python3 run_server.py (port 5050 - no modification needed)
-    Terminal 2: python3 attack_inject_simple.py (attacker on port 8888)
-    Terminal 3: python3 run_client_mitm_test.py (connects to port 8888)
+    Terminal 2: python3 attack_injection.py (attacker on port 8888)
+    Terminal 3: python3 run_client_impersonation.py (connects to port 8888)
 """
 import socket
 import struct

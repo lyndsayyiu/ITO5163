@@ -35,8 +35,6 @@ def start_client(host: str, port: int, identity: Identity):
             - RSA private key
             - trust store of the public keys
     """
-    print(f"[CLIENT] Connecting to server at {host}:{port} ...")
-
     #Creating TCP socket for connection
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -63,15 +61,13 @@ def start_client(host: str, port: int, identity: Identity):
     except ValueError as e:
         #Cryptographic validation failure
         print()
-        print("SECURITY ERROR - HANDSHAKE FAILED")
-        print()
+        print("--- SECURITY ERROR - HANDSHAKE FAILED ---")
         print(f"[CLIENT ERROR] {e}")
         print("\nPossible causes:")
         print(" 1. Server sent invalid cryptographic material")
         print(" 2. Main-in-the-middle-attack detected")
         print(" 3. Server is using incompatible protocol version")
         print(" 4. Server's RSA signature verification failed")
-        print()
         print("[CLIENT] Closing connection.")
         #Close socket and terminate program
         sock.close()
@@ -79,15 +75,12 @@ def start_client(host: str, port: int, identity: Identity):
     
     except ConnectionError as e:
         #Network/Connection issues during handshake
-        print()
-        print("CONNECTION ERROR - HANDSHAKE FAILED")
-        print()
+        print("--- CONNECTION ERROR - HANDSHAKE FAILED ---")
         print(f"[CLIENT ERROR] {e}")
         print("\nPossible causes:")
         print("  1. Server disconnected during handshake")
         print("  2. Network issues interrupted the connection")
         print("  3. Server rejected the handshake")
-        print()
         print("[CLIENT] Closing connection.")
         sock.close()
         sys.exit(1)

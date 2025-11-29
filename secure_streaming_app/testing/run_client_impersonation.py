@@ -1,5 +1,5 @@
 """
-run_client_impersonation_test.py
+run_client_impersonation.py
 
 modified run_client.py file for testing a MITM attack. 
 This client connects to the ATTACKER's proxy (port 8888) instead of the real server. 
@@ -7,8 +7,8 @@ No modified behaviour of the client.
 
 Usage:
     Terminal 1: python3 run_server.py (real server on port 5050)
-    Terminal 2: python3 attack_mitm_realistic.py (attacker proxy on port 8888)
-    Terminal 3: python3 run_client_mitm_test.py (victim client connecting to port 8888)
+    Terminal 2: python3 attack_impersonation.py or attack_injection.py or attack_replay.py
+    Terminal 3: python3 run_client_impersonation.py (victim client connecting to port 8888)
 
 Requirements:
  - Must run from root python3 testing/run_client_impersonation.py

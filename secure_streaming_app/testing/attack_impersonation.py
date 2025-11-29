@@ -14,7 +14,7 @@ between client and server, capturing and modifying actual network traffic.
 
 Usage:
     Terminal 1: python3 run_server.py
-    Terminal 2: python3 attack_mitm_realistic.py  (this becomes the proxy)
+    Terminal 2: python3 attack_impersonation.py  (this becomes the proxy)
     Terminal 3: python3 run_client.py --target 127.0.0.1:8888  (client connects to attacker)
     
 Note: You'll need to modify run_client.py to connect to port 8888 instead of 5050,

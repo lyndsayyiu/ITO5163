@@ -1,9 +1,13 @@
 """
-replay_from_pcap_v2.py
+replay_from_pcap.py
 
-Extracts encrypted messages from pcap and attempts to replay messages.
+Extracts encrypted messages from a pcap file and attempts to replay messages.
 
-Usage: python replay_from_pcap_v2.py capture.pcap
+Expects capture.pcap file. To create pcap file, run (on Mac OS):
+sudo tcpdump -i lo0 -w capture.pcap port 5050
+This assumes program is being run on local machine. Change lo0 as needed. 
+
+Usage: python replay_from_pcap.py capture.pcap
 Install: pip install scapy
 """
 

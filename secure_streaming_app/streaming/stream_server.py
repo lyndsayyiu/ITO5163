@@ -11,6 +11,7 @@ Handles the incoming side of the secure streaming channel:
 """
 import socket
 import json
+import sys
 from handshake.ecdh import ECDHKeyPair
 from handshake.identity import Identity
 from handshake.rsa_auth import verify_ecdh_public_key_signature, sign_ecdh_public_key

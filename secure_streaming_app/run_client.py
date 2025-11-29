@@ -28,7 +28,7 @@ def main():
     
     SERVER_IP = "127.0.0.1"
     SERVER_PORT = 5050 #Arbitray open port
-    print(f"[CLIENT] connecting to server at {SERVER_IP}: {SERVER_PORT}")
+    print(f"[CLIENT] Connecting to server at {SERVER_IP}: {SERVER_PORT}")
     start_client(SERVER_IP, SERVER_PORT, identity)
 
 if __name__ == "__main__":
