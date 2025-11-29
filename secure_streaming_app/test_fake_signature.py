@@ -16,13 +16,9 @@ def attempt_fake_signature_attack():
     """
     Attempts to perform MITM attack by sending fake credentials.
     """
-    print("="*60)
     print("ATTACK TEST: Forged RSA Signature (MITM Simulation)")
-    print("="*60)
-    print()
     print("[ATTACKER] Objective: Impersonate client with fake signature")
     print("[ATTACKER] This simulates an attacker intercepting the handshake")
-    print()
     
     try:
         # Connect to server
@@ -73,18 +69,8 @@ def attempt_fake_signature_attack():
             sock.close()
         except:
             pass
-    
-    print()
-    print("="*60)
     print("RESULT: Attack FAILED (as expected)")
-    print("="*60)
-    print()
-    print("Security Analysis:")
-    print("- Server verified RSA signature using client's trusted public key")
-    print("- Fake signature could not be validated")
-    print("- Connection was rejected, preventing MITM attack")
-    print("- This demonstrates authentication via RSA signatures")
-    print()
+
 
 if __name__ == "__main__":
     print()

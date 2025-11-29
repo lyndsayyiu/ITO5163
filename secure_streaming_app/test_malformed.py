@@ -87,7 +87,7 @@ def test_non_utf8():
         print(f"Handled: {type(e).__name__}")
 
 def main():
-    print("\n=== Malformed Input Tests ===")
+    print("\n--- Malformed Input Tests ---")
     print("Server should handle all inputs gracefully without crashing\n")
     
     tests = [
@@ -102,7 +102,7 @@ def main():
         test()
         time.sleep(1)
     
-    print("\n=== Tests Complete ===")
+    print("\n--- Tests Complete ---")
     print("Check server console for error handling\n")
 
 if __name__ == "__main__":

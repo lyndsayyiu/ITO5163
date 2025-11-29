@@ -9,6 +9,9 @@ Usage:
     Terminal 1: python3 run_server.py (real server on port 5050)
     Terminal 2: python3 attack_mitm_realistic.py (attacker proxy on port 8888)
     Terminal 3: python3 run_client_mitm_test.py (victim client connecting to port 8888)
+
+Requirements:
+ - Must run from root python3 testing/run_client_impersonation.py
 """
 from handshake.identity import Identity
 from streaming.stream_client import start_client

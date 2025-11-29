@@ -1,5 +1,6 @@
 import os
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.exceptions import InvalidTag
 
 NONCE_SIZE = 12 #NIST recommendation of 96-bits
 TAG_SIZE = 16 #128-bit authentication tag
@@ -71,6 +72,8 @@ def decrypt_message(session_key: bytes, nonce_bytes: bytes, ciphertext_bytes: by
             associated_data=None
         )
         return plaintext_bytes
+    except InvalidTag:
+        raise ValueError("Authentication tag verification failed - message has been tampered with or does not have correct key")
     except Exception as e:
         raise ValueError(f"Decryption failed - possible tampering or key mismatch: {e}")
     

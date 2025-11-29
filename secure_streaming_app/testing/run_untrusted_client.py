@@ -2,6 +2,9 @@
 run_untrusted_client.py
 
 Testing the security of the identity and trust_store. 
+
+Requirements:
+ - Must run from root python3 testing/run_untrust_client.py
 """
 from handshake.identity import Identity
 from streaming.stream_client import start_client
@@ -9,7 +12,7 @@ from streaming.stream_client import start_client
 def main():
     #Load client identity
     identity = Identity(
-        "fake_client", #Only changing the identity. A
+        "fake_client", #Only changing the identity.
         "storage/rsa_keys/client_private.pem",
         "storage/rsa_keys/client_public.pem",
         "storage/trust_store.json"
