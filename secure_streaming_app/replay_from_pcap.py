@@ -1,7 +1,7 @@
 """
 replay_from_pcap_v2.py
 
-Extracts encrypted messages from pcap and attempts replay.
+Extracts encrypted messages from pcap and attempts to replay messages.
 
 Usage: python replay_from_pcap_v2.py capture.pcap
 Install: pip install scapy

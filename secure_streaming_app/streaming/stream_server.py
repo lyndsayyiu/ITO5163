@@ -127,6 +127,14 @@ def start_server(host: str, port: int, identity: Identity):
                 #close connection before next client
                 conn.close()
                 print("[SERVER] Connection closed. Waiting for next client. ")
+    except KeyboardInterrupt:
+        print("\n[SERVER] Shutdown initiated by user.")
+    
+    finally:
+        #clean shutdown
+        sock.close()
+        print("[SERVER] Sever stopped. All connections closed.")
+        
 
 #Handshake logic
 def server_handshake(conn, identity: Identity) -> bytes:
