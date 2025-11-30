@@ -1,3 +1,11 @@
+"""
+aes_gcm.py
+
+AES-GCM authenticated encryption of secure message confidentiality and integrity. 
+
+This module provides encryption and decryption functions using AES-256-GCM (Advanced Encryption Standard
+in Galois/Counter Mode), which provides both confidentiality and authentication in a single operation. 
+"""
 import os
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.exceptions import InvalidTag

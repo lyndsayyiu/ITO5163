@@ -1,3 +1,16 @@
+"""
+secure_channel.py
+
+This module provides high-level functions for sending and receiving encrypted messages over TCP sockets using AES-GCM encryption. 
+The functions below handle the complete flow of:
+    1. Message serialisation (Python dict -> JSON -> bytes)
+    2. Encryption (AES-GCM with nonce and authentication tag)
+    3. Protocol framing (length-prefixed messages to handle TCP streaming)
+    4. Network transmission and reception
+    5. Decryption and deserialisation
+
+Provides comprehensive error handling for network and cyptographic failures.
+"""
 import json
 import struct
 import socket

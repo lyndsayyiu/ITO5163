@@ -1,3 +1,24 @@
+"""
+protocol.py
+
+This module defines the message formats and serialisation functions for the secure streaming app. All messages are transmitted as JSON strings over TCP,
+with binary data (cryptographic keys, signatures, ciphertexts) encoded in Base64 for safe transmission. 
+
+This module defines three message types:
+    1. client_hello: Initial handshake message from client to server
+        - Contains: device_id, ECDH public key, RSA signature
+        - Purpose: Authenticate client and initiate key exchange
+
+    2. server_hello: Handshake response from server to client
+        - Contains: device_id, ECDH public key, RSA signature
+        - Purpose: Authenticate server and complete key exchange
+
+    3. data: Encrypted application data messages
+        - Contains: sequence number, nonce, ciphertext, authentication tag
+        - Purpose: Securely transmit application messages using AES-GCM
+
+Base64 encoding ensures binary cryptographic data can be safely transmissted in JSON without encoding issues or data corruption. 
+"""
 import json
 import base64
 

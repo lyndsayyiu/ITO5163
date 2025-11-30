@@ -1,3 +1,17 @@
+"""
+rsa_auth.py
+
+This module provides RSA digital signature functions to provide authentication of ephermal ECDH public keys during the handshake.
+
+The authentication process:
+    1. The party signs their ephemeral ECDH public key with their long-term RSA private key.
+    2. The peer verifies the signature using the RSA public key of the party from peer's trust store. 
+    3. Successful verification provdes the ECDH public key came from the legitimate device.
+
+RSA-PSS (Probabilistic Signature Scheme) is used for signing:
+    - Uses SHA-256 for hasing and MGF1 for mask generation
+    - Maximum salt length for optimal security. 
+"""
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 

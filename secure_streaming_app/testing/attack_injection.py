@@ -22,6 +22,9 @@ import json
 import base64
 import os
 import time
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Configuration
 MITM_LISTEN_PORT = 8888      # Client connects here (attacker's proxy)

@@ -58,7 +58,7 @@ def attempt_fake_signature_attack():
         if response:
             print(f"[ATTACKER] Unexpected: received data: {response[:100]}")
         else:
-            print("[ATTACKER] ✓ Connection closed by server (signature rejected)")
+            print("[ATTACKER] Connection closed by server (signature rejected)")
             
     except ConnectionRefusedError:
         print("[ERROR] Connection refused. Is the server running?")
@@ -76,7 +76,6 @@ if __name__ == "__main__":
     print()
     print("This script demonstrates RSA signature verification preventing MITM attacks.")
     print("Make sure the server is running before executing this test.")
-    print()
     input("Press Enter to start the attack simulation...")
     print()
     

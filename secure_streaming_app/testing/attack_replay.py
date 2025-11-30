@@ -19,6 +19,7 @@ import socket
 import struct
 import time
 
+
 # Configuration
 MITM_LISTEN_PORT = 8888
 REAL_SERVER_HOST = "127.0.0.1"

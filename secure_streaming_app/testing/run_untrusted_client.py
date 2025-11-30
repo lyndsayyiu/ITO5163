@@ -2,12 +2,15 @@
 run_untrusted_client.py
 
 Testing the security of the identity and trust_store. 
-
-Requirements:
- - Must run from root python3 testing/run_untrust_client.py
 """
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from handshake.identity import Identity
 from streaming.stream_client import start_client
+
 
 def main():
     #Load client identity

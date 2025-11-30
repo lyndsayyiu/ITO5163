@@ -1,3 +1,15 @@
+"""
+identity.py
+
+This module manages the identity of a device and this module manges the long-term RSA identity of devices
+and provides access to trusted peer public keys through a trust store mechanism.
+
+Each device has:
+    - A unique device_id (str)
+    - An RSA private key (str) from PEM file.
+    - An RSA public key corresponding to the private key (str) from PEM file
+    - A trust store (JSON) mapping trusted peer device_id's to their trusted RSA public keys
+"""
 from cryptography.hazmat.primitives import serialization
 import json
 
