@@ -20,9 +20,9 @@ import socket
 import struct
 import json
 import base64
-import os
 import time
 import os
+import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
