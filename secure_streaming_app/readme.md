@@ -68,8 +68,7 @@ python testing/run_client_impersonation.py   # Terminal 2
 Tests AES-GCM integrity protection.
 ```bash
 python run_server.py               # Terminal 1
-python run_client.py               # Terminal 2 (let run briefly)
-python testing/test_tampered.py    # Terminal 3
+python testing/test_tampering.py    # Terminal 2
 ```
 **Result:** Tampered messages rejected - authentication tag verification fails.
 
@@ -141,7 +140,7 @@ secure_streaming_app/
 │   ├── run_untrusted_client.py
 │   ├── test_fake_signature.py
 │   ├── test_malformed.py
-│   └── test_tampered.py
+│   └── test_tampering.py
 ├── utils/
 │   ├── create_trust_store.py
 │   └── generate_rsa_keys.py
@@ -149,13 +148,6 @@ secure_streaming_app/
 ├── run_client.py # --- Start client program from here.
 └── run_server.py # --- Start server program with this file. 
 ```
-
-## Known Limitations
-
-- Single client support (no concurrent connections)
-- No automatic session key rotation
-- Static trust store (no runtime revocation)
-- No rate limiting or connection throttling
 
 ## Troubleshooting
 
